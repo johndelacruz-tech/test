@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quadratic Table Explorer</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@500;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fcfdfe;
+        }
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8 text-slate-900">
+
+    <div id="app" class="max-w-6xl mx-auto">
+        <header class="mb-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div>
+                <h1 class="text-2xl font-black text-slate-900 flex items-center gap-3">
+                    <i data-lucide="activity" class="text-indigo-600"></i>
+                    Quadratic Table Explorer
+                </h1>
+                <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">Single-File Portable Version</p>
+            </div>
+            
+            <div class="flex bg-white p-1 rounded-2xl shadow-sm border border-slate-100">
+                <button onclick="switchTab('lab')" id="tab-lab" class="tab-btn flex items-center gap-2 px-5 py-2 rounded-xl text-[11px] font-bold bg-indigo-600 text-white shadow-md">
+                    <i data-lucide="layout" class="w-4 h-4"></i> Explore
+                </button>
+                <button onclick="switchTab('tutorial')" id="tab-tutorial" class="tab-btn flex items-center gap-2 px-5 py-2 rounded-xl text-[11px] font-bold text-slate-500 hover:text-slate-800">
+                    <i data-lucide="book-open" class="w-4 h-4"></i> Explanation
+                </button>
+            </div>
+        </header>
+
+        <!-- LAB CONTENT -->
+        <div id="content-lab" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div class="lg:col-span-4 space-y-6">
+                <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
+                    <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 text-center">Select Equation</h4>
+                    <select id="equation-select" onchange="updateExample(this.value)" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-sm text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500">
+                        <!-- Options filled by JS -->
+                    </select>
+                </div>
+                
+                <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
+                    <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Numerical Data</h4>
+                    <div class="rounded-2xl border border-slate-200 overflow-hidden shadow-sm max-h-[400px] overflow-y-auto custom-scrollbar">
+                        <table class="w-full text-xs font-mono">
+                            <thead class="bg-slate-100 sticky top-0">
+                                <tr>
+                                    <th class="p-3 text-left font-black text-slate-500">X</th>
+                                    <th class="p-3 text-right font-black text-slate-500">Y</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body" class="divide-y divide-slate-100">
+                                <!-- Data rows filled by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-8">
+                <div class="bg-slate-900 text-white p-8 rounded-[2.5rem] shadow-xl">
+                    <h4 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-8 flex items-center gap-2">
+                        <i data-lucide="search" class="w-3 h-3"></i> Feature Extraction
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-6">
+                            <div>
+                                <p class="text-[10px] font-black text-indigo-400 uppercase mb-1">Vertex (Turning Point)</p>
+                                <p id="feat-vertex" class="text-3xl font-black font-mono tracking-tighter text-indigo-50">-</p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-black text-emerald-400 uppercase mb-1">X-Intercepts (Roots)</p>
+                                <p id="feat-xint" class="text-2xl font-black font-mono tracking-tighter text-emerald-50">-</p>
+                            </div>
+                        </div>
+                        <div class="space-y-6">
+                            <div>
+                                <p class="text-[10px] font-black text-slate-500 uppercase mb-1">Axis of Symmetry</p>
+                                <p id="feat-aos" class="text-xl font-black font-mono text-indigo-300">-</p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-black text-sky-400 uppercase mb-1">Y-Intercept</p>
+                                <p id="feat-yint" class="text-2xl font-black font-mono tracking-tighter text-sky-50">-</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-8 pt-6 border-t border-slate-800 flex items-center gap-3">
+                        <i data-lucide="info" class="text-indigo-400 w-5 h-5"></i>
+                        <p id="analysis-text" class="text-xs text-slate-400 leading-relaxed italic">
+                            Select an equation to see the breakdown.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TUTORIAL CONTENT (Hidden by default) -->
+        <div id="content-tutorial" class="hidden max-w-4xl mx-auto space-y-8 animate-in fade-in">
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-200">
+                <h2 class="text-2xl font-black mb-6 text-slate-900 flex items-center gap-3">
+                    <i data-lucide="book-open" class="text-indigo-600"></i>
+                    How to read the data
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="p-6 bg-slate-50 rounded-2xl border-l-4 border-emerald-500">
+                        <h3 class="font-black text-slate-800 mb-2">Finding Roots</h3>
+                        <p class="text-sm text-slate-600">Scan the <b>Y column</b>. When you see a <b>0</b>, that's an x-intercept!</p>
+                    </div>
+                    <div class="p-6 bg-slate-50 rounded-2xl border-l-4 border-indigo-600">
+                        <h3 class="font-black text-slate-800 mb-2">The Vertex</h3>
+                        <p class="text-sm text-slate-600">Look for the "middle" point where the Y values stop shrinking and start growing.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const examples = [
+            { 
+                equation: "f(x) = x² - 2x - 3", 
+                table: [{x:-2,y:5},{x:-1,y:0},{x:0,y:-3},{x:1,y:-4},{x:2,y:-3},{x:3,y:0},{x:4,y:5}],
+                vertex: "(1, -4)", xInt: "(-1, 0), (3, 0)", yInt: "(0, -3)", aos: "x = 1",
+                analysis: "This parabola opens upward. The vertex (1, -4) is the minimum point."
+            },
+            { 
+                equation: "f(x) = -x² + 4", 
+                table: [{x:-3,y:-5},{x:-2,y:0},{x:-1,y:3},{x:0,y:4},{x:1,y:3},{x:2,y:0},{x:3,y:-5}],
+                vertex: "(0, 4)", xInt: "(-2, 0), (2, 0)", yInt: "(0, 4)", aos: "x = 0",
+                analysis: "Because the coefficient is negative, this parabola opens downward like a hill."
+            },
+            { 
+                equation: "f(x) = (x - 3)²", 
+                table: [{x:1,y:4},{x:2,y:1},{x:3,y:0},{x:4,y:1},{x:5,y:4}],
+                vertex: "(3, 0)", xInt: "(3, 0)", yInt: "(0, 9)", aos: "x = 3",
+                analysis: "This graph just touches the x-axis at exactly one point: the vertex."
+            }
+        ];
+
+        function switchTab(tab) {
+            document.getElementById('content-lab').classList.toggle('hidden', tab !== 'lab');
+            document.getElementById('content-tutorial').classList.toggle('hidden', tab !== 'tutorial');
+            
+            // UI updates for buttons
+            const labBtn = document.getElementById('tab-lab');
+            const tutBtn = document.getElementById('tab-tutorial');
+            
+            if (tab === 'lab') {
+                labBtn.className = "tab-btn flex items-center gap-2 px-5 py-2 rounded-xl text-[11px] font-bold bg-indigo-600 text-white shadow-md";
+                tutBtn.className = "tab-btn flex items-center gap-2 px-5 py-2 rounded-xl text-[11px] font-bold text-slate-500 hover:text-slate-800";
+            } else {
+                tutBtn.className = "tab-btn flex items-center gap-2 px-5 py-2 rounded-xl text-[11px] font-bold bg-indigo-600 text-white shadow-md";
+                labBtn.className = "tab-btn flex items-center gap-2 px-5 py-2 rounded-xl text-[11px] font-bold text-slate-500 hover:text-slate-800";
+            }
+        }
+
+        function updateExample(index) {
+            const data = examples[index];
+            
+            // Update Dashboard
+            document.getElementById('feat-vertex').innerText = data.vertex;
+            document.getElementById('feat-xint').innerText = data.xInt;
+            document.getElementById('feat-yint').innerText = data.yInt;
+            document.getElementById('feat-aos').innerText = data.aos;
+            document.getElementById('analysis-text').innerText = data.analysis;
+
+            // Update Table
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = data.table.map(row => {
+                const isVertex = `(${row.x}, ${row.y})` === data.vertex;
+                const isRoot = row.y === 0;
+                const isYInt = row.x === 0;
+                const rowClass = isVertex ? 'bg-indigo-100/70' : isRoot ? 'bg-emerald-100/70' : isYInt ? 'bg-sky-100/70' : '';
+                
+                return `
+                    <tr class="${rowClass} hover:bg-slate-50 transition-colors">
+                        <td class="p-3 font-bold text-slate-500">${row.x}</td>
+                        <td class="p-3 text-right font-black text-slate-800">${row.y}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Initialize
+        window.onload = () => {
+            const select = document.getElementById('equation-select');
+            examples.forEach((ex, i) => {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.innerText = ex.equation;
+                select.appendChild(opt);
+            });
+            
+            updateExample(0);
+            lucide.createIcons(); // Initialize icons
+        };
+    </script>
+</body>
+</html>
